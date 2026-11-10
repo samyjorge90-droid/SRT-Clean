@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SRT Clean</title>
+    <meta name="theme-color" content="#0B1121">
+    <meta name="description" content="Remove marcas de água (TurboScribe) de ficheiros SRT, 100% offline.">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="SRT Clean">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" href="icons/favicon-64.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="css/tw-local.css">
+    <link rel="stylesheet" href="css/app.css">
+    
+</head>
+<body class="min-h-screen p-4 md:p-6 lg:p-8 flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 animate-fade-in">
+        <div class="flex items-center gap-3">
+            <img src="icons/icon-header.png" alt="SRT Clean" width="40" height="40" class="w-10 h-10 rounded-lg shadow-lg shadow-blue-500/20" style="border-radius:10px">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">SRT Clean</h1>
+                <p class="text-xs text-gray-400 hidden sm:block">Remova marcas de água (TurboScribe) de forma automática e local.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-4 bg-emerald-900/30 border border-emerald-800/50 rounded-full px-4 py-1.5">
+                <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                <span class="text-xs font-medium text-emerald-400">Processamento 100% Local</span>
+            </div>
+            <button id="installBtn" onclick="installApp()" class="text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg shadow-lg">Instalar app</button>
+            <!-- Theme Toggle Button -->
+            <button onclick="toggleTheme()" class="p-2 rounded-full bg-dark-800 border border-dark-700 text-gray-400 hover:text-blue-400 transition-colors shadow-sm" title="Alternar Tema Claro/Escuro" id="themeToggleBtn">
+                <!-- Sun Icon -->
+                <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <!-- Moon Icon -->
+                <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in" style="animation-delay: 0.1s;">
+        
+        <!-- LEFT COLUMN (Config & Queue) -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Compact Config Panel -->
+            <section class="bg-dark-800 border border-dark-700 rounded-xl p-5 flex flex-col sm:flex-row gap-6 shadow-sm">
+                
+                <!-- Mode Toggle -->
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Modo</label>
+                    <div class="flex bg-dark-900 p-1 rounded-lg border border-dark-700 h-[42px]">
+                        <button id="modeAuto" onclick="setMode('auto')" class="toggle-btn active flex-1 flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            Automático
+                        </button>
+                        <button id="modeManual" onclick="setMode('manual')" class="toggle-btn flex-1 flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                            Manual
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Suffix Input -->
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Sufixo</label>
+                    <div class="relative">
+                        <input type="text" id="suffixInput" value="_limpo" 
+                            class="w-full bg-dark-900 border border-dark-700 text-gray-200 text-sm rounded-lg block p-2.5 pl-3 pr-10 focus:ring-blue-500 focus:border-blue-500 h-[42px]" 
+                            placeholder="Ex: _limpo">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500 text-sm">.srt</div>
+                    </div>
+                </div>
+
+                <!-- Format Output -->
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Formato</label>
+                    <select id="formatSelect" class="bg-dark-900 border border-dark-700 text-gray-200 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 h-[42px]">
+                        <option value="srt">Apenas SRT</option>
+                        <option value="txt">Apenas TXT</option>
+                        <option value="both" selected>SRT + TXT (Sem tempos)</option>
+                        <option value="both_times">SRT + TXT (Com tempos)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Folder Panel -->
+            <section class="bg-dark-800 border border-dark-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="bg-dark-700 p-2 rounded text-blue-400 shrink-0 border border-dark-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pasta de destino</span>
+                        <span id="folderLabel" class="text-sm text-gray-200 truncate">Downloads (predefinição do navegador)</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button id="folderBtn" onclick="chooseFolder()" class="text-xs bg-dark-700 hover:bg-dark-600 text-gray-300 px-3 py-2 rounded-md border border-dark-600 transition-colors">Escolher pasta</button>
+                    <button id="folderResetBtn" onclick="resetFolder()" class="hidden text-xs text-red-400 hover:text-red-300 px-2 py-2 transition-colors">Remover</button>
+                </div>
+            </section>
+
+            <!-- Dropzone -->
+            <section id="dropzone" class="border-2 border-dashed border-dark-600 bg-dark-800 rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center group transition-all duration-300 relative">
+                <div class="bg-dark-700 p-4 rounded-full mb-4 group-hover:bg-blue-600/20 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-200 mb-1">Arraste os ficheiros <span class="text-blue-400 font-semibold">.srt</span> para aqui</h3>
+                <p class="text-sm text-gray-500 mb-6">ou clique para selecionar no seu dispositivo</p>
+                <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2.5 px-6 rounded-lg shadow-lg flex items-center gap-2 transition-transform active:scale-95 z-10 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    Selecionar Ficheiros
+                </button>
+                <input type="file" id="fileInput" multiple accept="*/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-0">
+            </section>
+
+            <!-- File Queue -->
+            <section class="bg-dark-800 border border-dark-700 rounded-xl flex flex-col flex-1 shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-dark-700 flex justify-between items-center bg-dark-900/50">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        <h2 class="font-medium text-gray-200">Ficheiros Selecionados (<span id="queueCount">0</span>)</h2>
+                    </div>
+                    <div id="batchActions" class="hidden flex items-center gap-2">
+                        <button onclick="downloadZip()" class="text-xs bg-dark-700 hover:bg-dark-600 text-gray-300 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1" title="Um único ficheiro SRT Clean.zip">ZIP</button>
+                        <button onclick="downloadAll()" class="text-xs bg-dark-700 hover:bg-dark-600 text-gray-300 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Descarregar Todos
+                        </button>
+                        <button onclick="clearQueue()" class="text-xs text-red-400 hover:text-red-300 px-2 py-1.5 transition-colors">Limpar</button>
+                    </div>
+                </div>
+                
+                <div class="flex-1 p-2 overflow-y-auto max-h-[300px] min-h-[150px]" id="queueList">
+                    <!-- Empty State -->
+                    <div id="emptyQueue" class="h-full flex flex-col items-center justify-center text-gray-500 gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <p class="text-sm">Nenhum ficheiro na fila.</p>
+                    </div>
+                    <!-- List items will be injected here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN (Sidebar / Preview) -->
+        <div class="lg:col-span-1 flex flex-col gap-6 h-full">
+            
+            <section class="bg-dark-800 border border-dark-700 rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
+                <!-- Tabs -->
+                <div class="flex border-b border-dark-700">
+                    <button id="tabPreview" onclick="switchTab('preview')" class="flex-1 py-3 text-sm font-medium border-b-2 border-blue-500 text-blue-400 bg-dark-900/30 flex justify-center items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        Pré-visualização
+                    </button>
+                    <button id="tabHelp" onclick="switchTab('help')" class="flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-300 flex justify-center items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Ajuda
+                    </button>
+                </div>
+
+                <!-- Preview Content Area -->
+                <div class="flex-1 relative bg-dark-900 p-4 min-h-[300px] flex flex-col overflow-hidden">
+                    
+                    <!-- PREVIEW PANEL -->
+                    <div id="previewPanel" class="flex-1 flex flex-col h-full relative">
+                        <!-- Empty Preview State -->
+                        <div id="emptyPreview" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-gray-500">
+                            <div class="w-16 h-16 rounded-full border border-dashed border-dark-600 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-dark-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <p class="font-medium text-gray-300 mb-1">Selecione um ficheiro</p>
+                            <p class="text-xs">Clique no ícone 👁️ na lista para ver o conteúdo processado.</p>
+                        </div>
+
+                        <!-- Active Preview State (Hidden initially) -->
+                        <div id="activePreview" class="hidden flex-col h-full animate-fade-in z-10 bg-dark-900">
+                            <div class="flex justify-between items-center mb-2">
+                                <span id="previewFilename" class="text-xs font-semibold text-blue-400 truncate max-w-[200px]">filename.srt</span>
+                                <span class="text-[10px] bg-dark-700 px-2 py-0.5 rounded text-gray-400">Pós-limpeza</span>
+                            </div>
+                            <textarea id="previewTextarea" readonly class="flex-1 w-full bg-dark-800 border border-dark-700 rounded-lg p-3 text-sm text-gray-300 font-mono resize-none focus:outline-none focus:border-dark-600"></textarea>
+                            
+                            <div class="mt-4 pt-4 border-t border-dark-700 flex gap-2">
+                                <button onclick="downloadActivePreview('srt')" class="flex-1 bg-dark-700 hover:bg-dark-600 text-gray-200 text-xs font-medium py-2 rounded transition-colors flex items-center justify-center gap-1 border border-dark-600">
+                                    Descarregar .SRT
+                                </button>
+                                <button onclick="downloadActivePreview('txt')" class="flex-1 bg-dark-700 hover:bg-dark-600 text-gray-200 text-xs font-medium py-2 rounded transition-colors flex items-center justify-center gap-1 border border-dark-600">
+                                    Descarregar .TXT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HELP PANEL (Hidden initially) -->
+                    <div id="helpPanel" class="hidden flex-col h-full animate-fade-in overflow-y-auto pr-2 text-sm text-gray-300">
+                        <h3 class="font-semibold text-gray-100 mb-4 text-base">Instruções de Uso</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-dark-800/50 p-3 rounded-lg border border-dark-700">
+                                <h4 class="text-blue-400 font-medium mb-1 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    Modo Automático
+                                </h4>
+                                <p class="text-gray-400 text-xs leading-relaxed">A forma mais rápida. Arraste um ou dezenas de ficheiros para a área tracejada. O sistema processa e descarrega tudo automaticamente com base nas configurações, sem necessitar de cliques extra.</p>
+                            </div>
+                            
+                            <div class="bg-dark-800/50 p-3 rounded-lg border border-dark-700">
+                                <h4 class="text-blue-400 font-medium mb-1 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                    Modo Manual
+                                </h4>
+                                <p class="text-gray-400 text-xs leading-relaxed">Ideal para controlo. Arraste ficheiros para criar uma lista. Selecione o ícone 👁️ para verificar como a legenda ficou antes de descarregar individualmente ou todas de uma vez.</p>
+                            </div>
+
+                            <div class="bg-dark-800/50 p-3 rounded-lg border border-dark-700">
+                                <h4 class="text-blue-400 font-medium mb-2 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                                    Formatos de Saída
+                                </h4>
+                                <ul class="list-disc pl-4 text-xs text-gray-400 space-y-1.5">
+                                    <li><strong class="text-gray-300">Apenas SRT:</strong> Mantém a legenda funcional para vídeos, removendo apenas a marca de água.</li>
+                                    <li><strong class="text-gray-300">Ambos (Sem tempos):</strong> Cria o SRT e também um documento TXT limpo, excelente para ler como um resumo.</li>
+                                    <li><strong class="text-gray-300">Ambos (Com tempos):</strong> Cria o SRT e um TXT preservando todas as timestamps e numerações de linhas.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+    <div id="toast" class="toast" role="status"></div>
+
+    <script src="js/pwa.js"></script>
+    <!-- Application Script -->
+    <script>
+        // --- State Management ---
+        const state = {
+            mode: 'auto', // 'auto' | 'manual'
+            files: [],    // Array of { id, originalName, content, cleanedSrt, cleanedTxt, size, status }
+            selectedId: null
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            dropzone: document.getElementById('dropzone'),
+            fileInput: document.getElementById('fileInput'),
+            suffixInput: document.getElementById('suffixInput'),
+            formatSelect: document.getElementById('formatSelect'),
+            queueList: document.getElementById('queueList'),
+            emptyQueue: document.getElementById('emptyQueue'),
+            queueCount: document.getElementById('queueCount'),
+            batchActions: document.getElementById('batchActions'),
+            emptyPreview: document.getElementById('emptyPreview'),
+            activePreview: document.getElementById('activePreview'),
+            previewFilename: document.getElementById('previewFilename'),
+            previewTextarea: document.getElementById('previewTextarea'),
+            tabPreview: document.getElementById('tabPreview'),
+            tabHelp: document.getElementById('tabHelp'),
+            previewPanel: document.getElementById('previewPanel'),
+            helpPanel: document.getElementById('helpPanel'),
+        };
+
+        // --- Setup Event Listeners ---
+        // Dropzone Events
+        els.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); els.dropzone.classList.add('dragover'); });
+        els.dropzone.addEventListener('dragleave', (e) => { e.preventDefault(); els.dropzone.classList.remove('dragover'); });
+        els.dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            els.dropzone.classList.remove('dragover');
+            handleFileSelection(e.dataTransfer.files);
+        });
+        
+        // Input Event
+        els.fileInput.addEventListener('change', (e) => {
+            handleFileSelection(e.target.files);
+            els.fileInput.value = ''; // Reset
+        });
+
+        // Mode Toggle
+        window.setMode = function(mode) {
+            state.mode = mode;
+            document.getElementById('modeAuto').classList.toggle('active', mode === 'auto');
+            document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
+            
+            if (typeof savePreferences === 'function') savePreferences();
+            
+            // Re-render UI based on mode if needed (hide/show some batch actions)
+            renderQueue();
+        };
+
+        // Theme Toggle Logic
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('srtCleanerTheme', isLight ? 'light' : 'dark');
+            
+            document.getElementById('iconSun').classList.toggle('hidden', !isLight);
+            document.getElementById('iconMoon').classList.toggle('hidden', isLight);
+        };
+
+        // Initialize Theme from LocalStorage
+        if (localStorage.getItem('srtCleanerTheme') === 'light') {
+            toggleTheme();
+        }
+
+        // --- Preferences Management ---
+        function savePreferences() {
+            localStorage.setItem('srtCleanerMode', state.mode);
+            localStorage.setItem('srtCleanerSuffix', els.suffixInput.value);
+            localStorage.setItem('srtCleanerFormat', els.formatSelect.value);
+        }
+
+        // Save preferences whenever suffix or format changes
+        els.suffixInput.addEventListener('input', savePreferences);
+        els.formatSelect.addEventListener('change', savePreferences);
+
+        function loadPreferences() {
+            const savedSuffix = localStorage.getItem('srtCleanerSuffix');
+            if (savedSuffix !== null) els.suffixInput.value = savedSuffix;
+
+            const savedFormat = localStorage.getItem('srtCleanerFormat');
+            if (savedFormat) els.formatSelect.value = savedFormat;
+
+            const savedMode = localStorage.getItem('srtCleanerMode');
+            if (savedMode) setMode(savedMode);
+        }
+
+        // Load all saved settings when the app starts
+        loadPreferences();
+
+        // --- Core Logic ---
+
+        function handleFileSelection(fileList) {
+            if (!fileList || fileList.length === 0) return;
+            
+            Array.from(fileList).forEach(file => {
+                if (file.name.toLowerCase().endsWith('.srt')) {
+                    const fileId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+                    const fileObj = {
+                        id: fileId,
+                        originalName: file.name,
+                        size: formatBytes(file.size),
+                        status: 'A LER...',
+                        content: '',
+                        cleanedSrt: '',
+                        cleanedTxt: ''
+                    };
+                    state.files.push(fileObj);
+                    readFile(file, fileObj);
+                }
+            });
+            renderQueue();
+        }
+
+        function readFile(file, fileObj) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                fileObj.content = e.target.result;
+                processContent(fileObj);
+                
+                // If Auto mode, download immediately based on config
+                if (state.mode === 'auto') {
+                    executeDownloads(fileObj);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function processContent(fileObj) {
+            // Regex to remove TurboScribe watermark and trailing whitespace/newlines
+            const watermarkRegex = /\([^\)]*TurboScribe[^\)]*\)\s*/gi;
+            
+            // Generate Cleaned SRT
+            let srt = fileObj.content.replace(watermarkRegex, '');
+            
+            // Edge case: if removing watermark left a completely empty cue (just number and timestamp), remove the cue.
+            // A basic cue looks like: "1\n00:00:00,000 --> 00:00:00,000\n\n"
+            const emptyCueRegex = /^\d+\r?\n\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\r?\n\r?\n/gm;
+            srt = srt.replace(emptyCueRegex, '');
+            
+            fileObj.cleanedSrt = srt;
+
+            // Generate Cleaned TXT (Strip Sequence Numbers and Timestamps)
+            let txt = srt;
+            txt = txt.replace(/^\d+\r?\n/gm, ''); // Remove sequence numbers
+            txt = txt.replace(/^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\r?\n/gm, ''); // Remove timestamps
+            txt = txt.replace(/\n{2,}/g, '\n\n'); // Normalize multiple blank lines to double breaks for readability
+            
+            fileObj.cleanedTxt = txt.trim();
+            fileObj.status = 'Pronto';
+            
+            renderQueue();
+            
+            // If this is the currently previewed file, update the preview
+            if (state.selectedId === fileObj.id) {
+                openPreview(fileObj.id);
+            }
+        }
+
+        function getOutputs(fileObj) {
+            const format = els.formatSelect.value;
+            const out = [];
+            if (format === 'srt' || format === 'both' || format === 'both_times') {
+                out.push({ name: getNewFilename(fileObj.originalName, 'srt'), content: fileObj.cleanedSrt });
+            }
+            if (format === 'txt' || format === 'both') {
+                out.push({ name: getNewFilename(fileObj.originalName, 'txt'), content: fileObj.cleanedTxt });
+            }
+            if (format === 'both_times') {
+                // O TXT com tempos tem o mesmo conteúdo exato do SRT, apenas muda a extensão
+                out.push({ name: getNewFilename(fileObj.originalName, 'txt'), content: fileObj.cleanedSrt });
+            }
+            return out;
+        }
+
+        async function executeDownloads(fileObj) {
+            for (const o of getOutputs(fileObj)) {
+                await triggerDownload(o.content, o.name);
+            }
+        }
+
+        // --- UI Rendering ---
+
+        function renderQueue() {
+            els.queueCount.textContent = state.files.length;
+            
+            if (state.files.length === 0) {
+                els.emptyQueue.style.display = 'flex';
+                els.batchActions.classList.add('hidden');
+                els.queueList.innerHTML = '';
+                els.queueList.appendChild(els.emptyQueue);
+                closePreview();
+                return;
+            }
+
+            els.emptyQueue.style.display = 'none';
+            els.batchActions.classList.remove('hidden');
+            
+            // Save empty queue element
+            const emptyEl = els.emptyQueue;
+            els.queueList.innerHTML = '';
+            els.queueList.appendChild(emptyEl);
+
+            // Build List
+            state.files.slice().reverse().forEach(f => {
+                const item = document.createElement('div');
+                const isSelected = f.id === state.selectedId;
+                
+                item.className = `flex items-center justify-between p-3 mb-2 rounded-lg border transition-all ${isSelected ? 'bg-dark-700 border-blue-500/50' : 'bg-dark-900 border-dark-700 hover:border-dark-600'}`;
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="bg-dark-800 p-2 rounded text-blue-400 shrink-0 border border-dark-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-sm font-medium text-gray-200 truncate" title="${f.originalName}">${f.originalName}</span>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[10px] text-gray-500">${f.size}</span>
+                                ${f.status === 'Pronto' 
+                                    ? `<span class="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg> Pronto</span>`
+                                    : `<span class="text-[10px] text-yellow-400 animate-pulse">${f.status}</span>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1 sm:gap-2 shrink-0 ml-2">
+                        <button onclick="openPreview('${f.id}')" class="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-dark-700 rounded transition-colors" title="Pré-visualizar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
+                        ${state.mode === 'manual' ? `
+                            <button onclick="downloadSingle('${f.id}')" class="hidden sm:flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-blue-400 border border-blue-900/50 hover:bg-blue-900/30 px-2 py-1.5 rounded transition-colors">
+                                Baixar
+                            </button>
+                        ` : ''}
+                        <div class="w-px h-4 bg-dark-700 mx-1 hidden sm:block"></div>
+                        <button onclick="removeFile('${f.id}')" class="p-1.5 text-gray-500 hover:text-red-400 hover:bg-dark-700 rounded transition-colors" title="Remover">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                `;
+                els.queueList.appendChild(item);
+            });
+        }
+
+        // --- Interaction Handlers ---
+
+        window.switchTab = function(tabName) {
+            if (tabName === 'preview') {
+                els.tabPreview.classList.add('border-blue-500', 'text-blue-400', 'bg-dark-900/30');
+                els.tabPreview.classList.remove('border-transparent', 'text-gray-500');
+                
+                els.tabHelp.classList.remove('border-blue-500', 'text-blue-400', 'bg-dark-900/30');
+                els.tabHelp.classList.add('border-transparent', 'text-gray-500');
+                
+                els.previewPanel.classList.remove('hidden');
+                els.previewPanel.classList.add('flex');
+                els.helpPanel.classList.add('hidden');
+                els.helpPanel.classList.remove('flex');
+            } else if (tabName === 'help') {
+                els.tabHelp.classList.add('border-blue-500', 'text-blue-400', 'bg-dark-900/30');
+                els.tabHelp.classList.remove('border-transparent', 'text-gray-500');
+                
+                els.tabPreview.classList.remove('border-blue-500', 'text-blue-400', 'bg-dark-900/30');
+                els.tabPreview.classList.add('border-transparent', 'text-gray-500');
+                
+                els.helpPanel.classList.remove('hidden');
+                els.helpPanel.classList.add('flex');
+                els.previewPanel.classList.add('hidden');
+                els.previewPanel.classList.remove('flex');
+            }
+        };
+
+        window.openPreview = function(id) {
+            state.selectedId = id;
+            renderQueue(); // Update selection highlight
+            
+            const file = state.files.find(f => f.id === id);
+            if (!file) return;
+
+            switchTab('preview'); // Automatically switch to preview tab if reading a file
+
+            els.emptyPreview.classList.add('hidden');
+            els.activePreview.classList.remove('hidden');
+            els.activePreview.classList.add('flex');
+            
+            els.previewFilename.textContent = file.originalName;
+            
+            // Show SRT by default in preview
+            els.previewTextarea.value = file.cleanedSrt;
+        }
+
+        function closePreview() {
+            state.selectedId = null;
+            els.emptyPreview.classList.remove('hidden');
+            els.activePreview.classList.add('hidden');
+            els.activePreview.classList.remove('flex');
+        }
+
+        window.removeFile = function(id) {
+            state.files = state.files.filter(f => f.id !== id);
+            if (state.selectedId === id) closePreview();
+            renderQueue();
+        }
+
+        window.clearQueue = function() {
+            state.files = [];
+            closePreview();
+            renderQueue();
+        }
+
+        window.downloadSingle = function(id) {
+            const file = state.files.find(f => f.id === id);
+            if (file) executeDownloads(file);
+        }
+
+        window.downloadAll = async function() {
+            for (const f of state.files) await executeDownloads(f);
+        }
+
+        window.downloadZip = async function() {
+            const entries = [];
+            const seen = {};
+            const enc = new TextEncoder();
+            state.files.forEach(f => getOutputs(f).forEach(o => {
+                let name = o.name;
+                if (seen[name]) { const i = name.lastIndexOf('.'); name = name.slice(0, i) + '_' + seen[name] + name.slice(i); }
+                seen[o.name] = (seen[o.name] || 0) + 1;
+                entries.push({ name, data: enc.encode(o.content) });
+            }));
+            if (!entries.length) return;
+            await saveBlob(buildZip(entries), 'SRT Clean.zip');
+        }
+
+        window.downloadActivePreview = function(format) {
+            if (!state.selectedId) return;
+            const file = state.files.find(f => f.id === state.selectedId);
+            if (!file) return;
+            
+            const globalFormat = els.formatSelect.value;
+
+            if (format === 'srt') {
+                triggerDownload(file.cleanedSrt, getNewFilename(file.originalName, 'srt'));
+            }
+            if (format === 'txt') {
+                // Respeita a escolha do utilizador também no botão de download individual
+                const txtContent = (globalFormat === 'both_times') ? file.cleanedSrt : file.cleanedTxt;
+                triggerDownload(txtContent, getNewFilename(file.originalName, 'txt'));
+            }
+        }
+
+        // --- Helpers ---
+
+        function formatBytes(bytes, decimals = 1) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function getNewFilename(original, ext) {
+            const suffix = els.suffixInput.value.trim();
+            const base = original.replace(/\.[^/.]+$/, ""); // Remove extension
+            return `${base}${suffix}.${ext}`;
+        }
+
+        function triggerDownload(content, filename) {
+            return saveBlob(new Blob([content], { type: 'text/plain;charset=utf-8' }), filename);
+        }
+    </script>
+</body>
+</html>
