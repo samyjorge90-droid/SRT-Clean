@@ -1,0 +1,55 @@
+/* Estilos personalizados do SRT Clean */
+body { background-color: #0B1121; color: #f3f4f6; }
+        
+        /* Custom Scrollbar for inner elements */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        @keyframes pulseBorder {
+            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        .dragover {
+            animation: pulseBorder 1.5s infinite;
+            background-color: rgba(31, 41, 55, 0.8) !important;
+            border-color: #3b82f6 !important;
+        }
+
+        /* Toggle Button Styles */
+        .toggle-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+        .toggle-btn:not(.active) { background-color: transparent; color: #9ca3af; border-color: transparent; }
+        .toggle-btn:not(.active):hover { color: #f3f4f6; background-color: rgba(255,255,255,0.05); }
+
+        /* Light Mode Overrides */
+        body.light-mode { background-color: #f3f4f6; color: #111827; }
+        .light-mode .bg-dark-900 { background-color: #f9fafb !important; }
+        .light-mode .bg-dark-800 { background-color: #ffffff !important; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .light-mode .bg-dark-700 { background-color: #f3f4f6 !important; }
+        .light-mode .border-dark-700 { border-color: #e5e7eb !important; }
+        .light-mode .border-dark-600 { border-color: #d1d5db !important; }
+        .light-mode .text-gray-200, .light-mode .text-gray-300 { color: #1f2937 !important; }
+        .light-mode .text-gray-400, .light-mode .text-gray-500 { color: #6b7280 !important; }
+        .light-mode input, .light-mode select, .light-mode textarea { background-color: #ffffff !important; border-color: #d1d5db !important; color: #111827 !important; }
+        .light-mode .toggle-btn:not(.active):hover { color: #111827; background-color: rgba(0,0,0,0.05); }
+        .light-mode #dropzone { background-color: #f9fafb !important; border-color: #d1d5db !important; }
+        .light-mode #dropzone.dragover { background-color: #eff6ff !important; border-color: #3b82f6 !important; }
+        .light-mode ::-webkit-scrollbar-track { background: #e5e7eb; }
+        .light-mode ::-webkit-scrollbar-thumb { background: #9ca3af; }
+        .light-mode ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .light-mode .bg-emerald-900\/30 { background-color: #d1fae5 !important; border-color: #a7f3d0 !important; }
+        .light-mode .text-emerald-400 { color: #059669 !important; }
+
+/* PWA / folder bar */
+html{background:#0B1121}
+body{padding-bottom:calc(1rem + env(safe-area-inset-bottom,0px));padding-top:calc(1rem + env(safe-area-inset-top,0px))}
+.toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:#1F2937;color:#f3f4f6;border:1px solid #374151;padding:.6rem 1rem;border-radius:.75rem;font-size:.8rem;max-width:90vw;opacity:0;pointer-events:none;transition:all .25s;z-index:50;box-shadow:0 10px 25px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.light-mode .toast{background:#fff;color:#111827;border-color:#d1d5db}
+#installBtn{display:none}
